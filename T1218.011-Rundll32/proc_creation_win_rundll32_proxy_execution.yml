@@ -1,0 +1,31 @@
+title: System Binary Proxy Execution: Rundll32.
+id: 81002e40-d895-41c5-9699-7c8532543ac2
+status: experimental
+description: Detects creation of a rundll32 execution via rundll32.exe, commonly used for persistence and privilege escalation by adversaries. Rundll32 is a legitimate Windows binary that can be abused to execute malicious code. Attackers may use it to run DLLs with elevated privileges or to maintain persistence on a compromised system.
+references:
+    - https://attack.mitre.org/techniques/T1218/011/
+author: Asadbek Mamatkarimov
+date: 2026-09-13
+tags:
+    - attack.persistence
+    - attack.privilege_escalation
+    - attack.t1218.011
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        Image|endswith: '\rundll32.exe'
+        CommandLine|contains: 
+          - 'javascript' 
+          - '.dll' 
+          - '\Temp\' 
+          - '\AppData\'
+    condition: selection
+falsepositives:
+    - Некоторые инсталляторы и обновления ПО запускают rundll32 из временных папок
+    - Легитимные приложения, хранящие DLL в AppData (например, часть браузерных или пользовательских приложений)
+    - Вызов панели управления звуком
+    - Блокировка компьютера
+    - Открытие диалога настройки печати или принтеров
+level: medium
