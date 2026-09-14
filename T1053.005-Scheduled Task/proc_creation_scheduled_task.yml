@@ -1,0 +1,35 @@
+title: Scheduled Task/Job Creation
+id: 36842073-3a10-4171-b2e7-35addafd153d
+status: experimental
+description: Detects the creation of a scheduled task or job, which can be used by adversaries to maintain persistence on a system. Scheduled tasks can be created using the Windows Task Scheduler or via command-line tools such as schtasks.exe
+references:
+    - https://attack.mitre.org/techniques/T1053/005/
+author: Asadbek Mamatkarimov
+date: 2026-09-13
+tags: 
+    - attack.persistence
+    - attack.t1053.005
+logsource: 
+    category: process_creation
+    product: windows
+detection:
+    selection_cmd:
+        Image|endswith: '\schtasks.exe'
+        CommandLine|contains: '/create'
+    selection_parent:
+        ParentImage|endswith:
+            - '\cmd.exe'
+            - '\powershell.exe'
+    filter: 
+        CommandLine|contains: 
+            - '\Microsoft\Windows\'
+    condition: selection_cmd and selection_parent and not filter
+falsepositives: 
+    - Windows Defender (Verification, CacheMaintenance, Cleanup) — регулярное сканирование системы антивирусом «Защитник Windows», обновление его баз и очистка кэша
+    - Application Experience (Microsoft Compatibility Appraiser) — сбор данных телеметрии для оценки совместимости приложений (часто нагружает процессор, но является легитимным процессом Microsoft)
+    - Google Update (GoogleUpdateTaskMachineUA, GoogleUpdateTaskMachineCore) — обновление браузера Google Chrome и других сервисов Google
+    - Mozilla Maintenance Service — обновление браузера Firefox
+    - Adobe Acrobat Update Task — автоматическое обновление продуктов Adobe (Reader, Photoshop и др.)
+
+
+level: medium
